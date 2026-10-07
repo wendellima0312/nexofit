@@ -76,6 +76,7 @@ create table if not exists public.fitness_reminders (
 );
 
 create index if not exists user_roles_role_idx on public.user_roles (role);
+create index if not exists user_achievement_unlocks_achievement_id_idx on public.user_achievement_unlocks (achievement_id);
 create index if not exists user_follows_following_idx on public.user_follows (following_id);
 create index if not exists feed_posts_user_created_idx on public.feed_posts (user_id, created_at desc);
 create index if not exists feed_post_likes_user_idx on public.feed_post_likes (user_id);
@@ -109,20 +110,26 @@ using ((select auth.uid()) = follower_id)
 with check ((select auth.uid()) = follower_id);
 
 drop policy if exists feed_posts_owner_all on public.feed_posts;
-create policy feed_posts_owner_all on public.feed_posts for all to authenticated
-using ((select auth.uid()) = user_id)
-with check ((select auth.uid()) = user_id);
-
 drop policy if exists feed_posts_followers_read on public.feed_posts;
-create policy feed_posts_followers_read on public.feed_posts for select to authenticated
+create policy feed_posts_read on public.feed_posts for select to authenticated
 using (
-  visibility = 'followers'
-  and exists (
-    select 1 from public.user_follows f
-    where f.follower_id = (select auth.uid())
-      and f.following_id = feed_posts.user_id
+  (select auth.uid()) = user_id
+  or (
+    visibility = 'followers'
+    and exists (
+      select 1 from public.user_follows f
+      where f.follower_id = (select auth.uid())
+        and f.following_id = feed_posts.user_id
+    )
   )
 );
+create policy feed_posts_owner_insert on public.feed_posts for insert to authenticated
+with check ((select auth.uid()) = user_id);
+create policy feed_posts_owner_update on public.feed_posts for update to authenticated
+using ((select auth.uid()) = user_id)
+with check ((select auth.uid()) = user_id);
+create policy feed_posts_owner_delete on public.feed_posts for delete to authenticated
+using ((select auth.uid()) = user_id);
 
 drop policy if exists feed_post_likes_self_all on public.feed_post_likes;
 create policy feed_post_likes_self_all on public.feed_post_likes for all to authenticated
@@ -159,3 +166,34 @@ on conflict (version) do nothing;
 insert into public.app_content_versions (version, description)
 values ('2026.10.07-nexofit-fitness-reminders', 'Lembretes de treino, agua, mobilidade, recuperacao e lembretes personalizados.')
 on conflict (version) do nothing;
+
+revoke all privileges on table
+  public.user_roles,
+  public.user_points,
+  public.user_achievement_unlocks,
+  public.user_follows,
+  public.feed_posts,
+  public.feed_post_likes,
+  public.ai_coach_settings,
+  public.fitness_reminders
+from public, anon;
+grant select on table public.achievements to anon, authenticated;
+grant select on table public.user_roles, public.user_points, public.user_achievement_unlocks to authenticated;
+grant select, insert, update, delete on table
+  public.user_follows,
+  public.feed_posts,
+  public.feed_post_likes,
+  public.ai_coach_settings,
+  public.fitness_reminders
+to authenticated;
+grant all privileges on table
+  public.user_roles,
+  public.user_points,
+  public.achievements,
+  public.user_achievement_unlocks,
+  public.user_follows,
+  public.feed_posts,
+  public.feed_post_likes,
+  public.ai_coach_settings,
+  public.fitness_reminders
+to service_role;

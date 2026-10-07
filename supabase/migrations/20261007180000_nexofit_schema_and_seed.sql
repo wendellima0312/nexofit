@@ -1,5 +1,6 @@
 create extension if not exists pgcrypto;
-create extension if not exists unaccent;
+create schema if not exists extensions;
+create extension if not exists unaccent with schema extensions;
 
 create schema if not exists private;
 
@@ -62,6 +63,8 @@ drop trigger if exists auth_user_create_nexofit_profile on auth.users;
 create trigger auth_user_create_nexofit_profile
 after insert on auth.users
 for each row execute function private.handle_nexofit_new_user();
+
+revoke execute on function private.handle_nexofit_new_user() from public, anon, authenticated;
 
 create table if not exists public.exercises (
   id text primary key,
@@ -206,14 +209,21 @@ create table if not exists public.app_content_versions (
 );
 
 create index if not exists exercise_media_exercise_id_idx on public.exercise_media (exercise_id);
+create index if not exists exercise_substitutions_substitute_exercise_id_idx on public.exercise_substitutions (substitute_exercise_id);
 create index if not exists workout_plans_user_id_idx on public.workout_plans (user_id);
 create index if not exists workout_days_plan_user_idx on public.workout_days (workout_plan_id, user_id);
+create index if not exists workout_days_user_id_idx on public.workout_days (user_id);
 create index if not exists workout_exercises_day_user_idx on public.workout_exercises (workout_day_id, user_id);
+create index if not exists workout_exercises_exercise_id_idx on public.workout_exercises (exercise_id);
+create index if not exists workout_exercises_user_id_idx on public.workout_exercises (user_id);
 create index if not exists workout_sessions_user_started_idx on public.workout_sessions (user_id, started_at desc);
+create index if not exists workout_sessions_workout_day_id_idx on public.workout_sessions (workout_day_id);
 create index if not exists set_logs_session_idx on public.set_logs (workout_session_id);
+create index if not exists set_logs_exercise_id_idx on public.set_logs (exercise_id);
 create index if not exists set_logs_user_exercise_idx on public.set_logs (user_id, exercise_id, created_at desc);
 create index if not exists body_metrics_user_date_idx on public.body_metrics (user_id, measured_at desc);
 create index if not exists feedback_user_created_idx on public.feedback (user_id, created_at desc);
+create index if not exists feedback_workout_session_id_idx on public.feedback (workout_session_id);
 
 alter table public.exercises enable row level security;
 alter table public.exercise_media enable row level security;
@@ -289,7 +299,7 @@ variants(suffix, equipment, location, complexity) as (
 ),
 expanded as (
   select
-    lower(regexp_replace(unaccent(base || ' ' || suffix), '[^a-zA-Z0-9]+', '-', 'g')) as id,
+    lower(regexp_replace(extensions.unaccent(base || ' ' || suffix), '[^a-zA-Z0-9]+', '-', 'g')) as id,
     initcap(base || ' ' || suffix) as name,
     initcap(base) as alternative_name,
     primary_muscle,
@@ -356,3 +366,48 @@ join lateral (
   limit 3
 ) s on true
 on conflict do nothing;
+
+grant usage on schema public to anon, authenticated, service_role;
+revoke all privileges on table
+  public.profiles,
+  public.user_preferences,
+  public.workout_plans,
+  public.workout_days,
+  public.workout_exercises,
+  public.workout_sessions,
+  public.set_logs,
+  public.body_metrics,
+  public.feedback
+from public, anon;
+grant select on table
+  public.exercises,
+  public.exercise_media,
+  public.exercise_substitutions,
+  public.app_content_versions
+to anon, authenticated;
+grant select, insert, update, delete on table
+  public.profiles,
+  public.user_preferences,
+  public.workout_plans,
+  public.workout_days,
+  public.workout_exercises,
+  public.workout_sessions,
+  public.set_logs,
+  public.body_metrics,
+  public.feedback
+to authenticated;
+grant all privileges on table
+  public.profiles,
+  public.exercises,
+  public.exercise_media,
+  public.exercise_substitutions,
+  public.user_preferences,
+  public.workout_plans,
+  public.workout_days,
+  public.workout_exercises,
+  public.workout_sessions,
+  public.set_logs,
+  public.body_metrics,
+  public.feedback,
+  public.app_content_versions
+to service_role;
