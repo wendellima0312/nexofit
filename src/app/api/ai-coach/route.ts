@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { aiCoachSystemPrompt } from "@/lib/nexofit/ai-coach";
+import { createClient } from "@/lib/supabase/server";
 
 type CoachMessage = {
   role: "user" | "assistant";
@@ -7,6 +8,13 @@ type CoachMessage = {
 };
 
 export async function POST(request: Request) {
+  const supabase = await createClient();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return NextResponse.json({ error: "Entre na sua conta para conversar com o agente." }, { status: 401 });
+  }
+
   const apiKey = process.env.OPENROUTER_API_KEY;
   const model = process.env.AI_MODEL ?? "anthropic/claude-haiku-5.5";
 
@@ -17,13 +25,37 @@ export async function POST(request: Request) {
     );
   }
 
-  const body = (await request.json()) as {
+  let payload: unknown;
+
+  try {
+    payload = await request.json();
+  } catch {
+    return NextResponse.json({ error: "A mensagem enviada e invalida." }, { status: 400 });
+  }
+
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+    return NextResponse.json({ error: "A mensagem enviada e invalida." }, { status: 400 });
+  }
+
+  const body = payload as {
     profile?: { name?: string; goal?: string; experience?: string; daysPerWeek?: number };
     messages?: CoachMessage[];
   };
+  const messages = Array.isArray(body.messages) ? body.messages.slice(-12) : [];
+  const hasInvalidMessage = messages.some(
+    (message) =>
+      !message ||
+      !["user", "assistant"].includes(message.role) ||
+      typeof message.content !== "string" ||
+      !message.content.trim() ||
+      message.content.length > 2000,
+  );
+
+  if (messages.length === 0 || hasInvalidMessage) {
+    return NextResponse.json({ error: "Envie uma mensagem de ate 2.000 caracteres." }, { status: 400 });
+  }
 
   const profile = body.profile ?? {};
-  const messages = (body.messages ?? []).slice(-12);
   const profileContext = `Perfil atual: nome=${profile.name || "nao informado"}; objetivo=${profile.goal || "nao informado"}; experiencia=${profile.experience || "nao informado"}; dias por semana=${profile.daysPerWeek ?? "nao informado"}.`;
 
   const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
