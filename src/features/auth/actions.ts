@@ -76,7 +76,7 @@ export async function updatePassword(_state: AuthState, formData: FormData): Pro
   const supabase = await createClient();
   const { error } = await supabase.auth.updateUser({ password });
   if (error) return { error: error.message };
-  return { success: "Senha atualizada. Você já pode continuar no DuoNest." };
+  return { success: "Senha atualizada. Você já pode continuar no NexoFit." };
 }
 
 export async function signOut() {

@@ -1,22 +1,15 @@
 import { AppShell } from "@/components/layout/app-shell";
-import { getShellData } from "@/lib/duonest/data";
+import { createClient } from "@/lib/supabase/server";
 
-export default async function AppLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const data = await getShellData();
-  return (
-    <AppShell
-      userId={data.profile.id}
-      userName={data.profile.display_name}
-      userAvatar={data.profile.avatar_url}
-      userAvatarConfig={data.profile.avatar_config}
-      homeName={data.home.name}
-      unreadCount={data.unreadCount}
-    >
-      {children}
-    </AppShell>
-  );
+export default async function AppLayout({ children }: { children: React.ReactNode }) {
+  let userName = "atleta";
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase.auth.getUser();
+    userName = data.user?.user_metadata?.display_name ?? data.user?.email?.split("@")[0] ?? userName;
+  } catch {
+    userName = "atleta";
+  }
+
+  return <AppShell userName={userName}>{children}</AppShell>;
 }

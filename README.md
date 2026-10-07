@@ -1,84 +1,100 @@
-# DuoNest
+# NexoFit
 
-DuoNest is a modern shared household routine manager for couples and growing homes. It combines domestic tasks, reminders, shopping lists, attention points, records, XP, levels, missions, achievements, notifications, and weekly collaboration metrics.
+Aplicativo mobile-first de musculacao em portugues do Brasil, com Next.js App Router, Supabase Auth/Postgres/RLS e deploy na Vercel.
 
-## Stack
+## O que esta implementado
 
-- Next.js App Router
-- TypeScript
-- React
-- Tailwind CSS
-- Supabase Auth, Postgres, RLS, Storage, Realtime
-- Vercel-ready deployment
+- Interface PWA responsiva com tema claro/escuro, navegacao inferior e controles grandes para treino.
+- Onboarding/perfil adaptavel com limites de seguranca para menores de 18 anos, gravidez/pos-parto, lesao, dor, cirurgia recente, condicao clinica relevante ou restricao medica.
+- Gerador deterministico de treinos por dias, duracao, objetivo, experiencia, local, equipamentos e exclusoes.
+- Catalogo inicial versionado com mais de 100 exercicios, descricoes em portugues, substituicoes e midia esquematica SVG propria.
+- Modo de treino com instrucao, substituicoes, registro simples de series, desconforto e historico local.
+- Migracao Supabase com tabelas de perfil, preferencias, planos, dias, exercicios prescritos, sessoes, series, metricas corporais, feedback, catalogo, midias e versao de conteudo.
+- RLS para dados de usuario por `user_id = auth.uid()` e catalogo publico somente leitura.
+- Testes automatizados de criterios centrais do gerador/catalogo.
 
-## Local Development
+## Desenvolvimento Local
 
 ```bash
 npm install
-cp .env.example .env.local
 npm run dev
 ```
 
-Open `http://localhost:3000`.
+Crie `.env.local` a partir de `.env.example`:
 
-Required environment variables:
-
-```text
-NEXT_PUBLIC_SUPABASE_URL
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+```bash
+NEXT_PUBLIC_SUPABASE_URL=https://seu-projeto.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_xxx
 ```
 
-Never put service-role or secret keys in `NEXT_PUBLIC_` variables.
+Nunca exponha `SUPABASE_SECRET_KEY` ou `service_role` no cliente.
 
 ## Supabase
 
-The initial schema is in:
+O schema principal esta em:
 
 ```text
-supabase/migrations/20260924153000_initial_duonest_schema.sql
+supabase/migrations/20261007180000_nexofit_schema_and_seed.sql
 ```
 
-It creates household membership tables, routine modules, UUID keys, indexed foreign keys, RLS policies scoped by home membership, Storage buckets, and Realtime support for collaborative shopping items.
-
-Apply locally or to a linked project:
+Aplicar local/remoto:
 
 ```bash
+supabase link --project-ref <project-ref>
 supabase db push
-supabase test db
 ```
 
-## Routes
+A migracao e idempotente para o catalogo inicial: `exercises`, `exercise_media`, `exercise_substitutions` e `app_content_versions` usam `on conflict` quando apropriado.
 
-- `/login`
-- `/cadastro`
-- `/recuperar-senha`
-- `/onboarding`
-- `/dashboard`
-- `/tarefas`
-- `/tarefas/[id]`
-- `/calendario`
-- `/missoes`
-- `/mercado`
-- `/mercado/[id]`
-- `/pontos-atencao`
-- `/pontos-atencao/[id]`
-- `/registros`
-- `/conquistas`
-- `/perfil`
-- `/configuracoes`
-- `/configuracoes/casa`
-- `/configuracoes/membros`
-- `/configuracoes/notificacoes`
+### Usuario MASTER
 
-## Deployment
+O dono da plataforma fica com papel `master` em `user_roles`. Para criar/atualizar o usuario sem gravar senha no repositório:
 
-1. Push this repository to GitHub.
-2. Import the repository in Vercel.
-3. Add `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`.
-4. Run the Supabase migration before using the production app.
-5. Keep secret/server keys only in server-side environment variables.
+```bash
+$env:NEXT_PUBLIC_SUPABASE_URL="https://seu-projeto.supabase.co"
+$env:SUPABASE_SECRET_KEY="sua-service-role-ou-secret-key"
+$env:MASTER_NAME="Wendel Carlos"
+$env:MASTER_EMAIL="wendellima0312@gmail.com"
+$env:MASTER_PASSWORD="senha-informada-com-seguranca"
+npm run create:master
+```
 
-## Architecture Docs
+Use a senha apenas em variavel de ambiente local/segura. Nao versione esse valor.
 
-- `docs/ARCHITECTURE.md`
-- `docs/SECURITY_CHECKLIST.md`
+## Vercel
+
+Configure as variaveis de ambiente no projeto Vercel:
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+- `SUPABASE_SECRET_KEY`, somente se for criar rotas administrativas server-side. Nunca use no cliente.
+
+Para o agente de IA, a tela ja aceita uma chave. Em producao, guarde a chave em ambiente/segredo server-side ou em cofre e grave somente uma referencia criptografada em `ai_coach_settings`.
+
+Variaveis usadas pelo agente:
+
+```bash
+OPENROUTER_API_KEY=sua-chave-openrouter
+AI_MODEL=anthropic/claude-haiku-5.5
+NEXT_PUBLIC_APP_URL=https://seu-dominio
+```
+
+Depois publique pelo Git conectado ou CLI:
+
+```bash
+vercel --prod
+```
+
+## Conteudo E Licencas
+
+As ilustracoes de exercicio sao SVGs esquematicos originais do projeto (`public/exercise-fallback.svg`) e podem ser usadas comercialmente neste app. O app nao usa fotos de pessoas, marcas de terceiros ou midias externas sem licenca.
+
+## Verificacao
+
+```bash
+npm test
+npm run lint
+npm run build
+```
+
+Criterios cobertos por testes: catalogo com 100+ exercicios, montagem para adulto, respeito a dias/equipamentos/exclusoes e bloqueio de seguranca.

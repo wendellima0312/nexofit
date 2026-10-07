@@ -1,9 +1,9 @@
 "use client";
+/* eslint-disable @next/next/no-img-element */
 
 import { useActionState } from "react";
 import Link from "next/link";
 import { LoaderCircle, LockKeyhole, Mail, UserPlus } from "lucide-react";
-import { BrandLogo } from "@/components/brand/brand-logo";
 import {
   requestPasswordReset,
   signIn,
@@ -21,9 +21,9 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: Mode; next?: str
   const [state, formAction, pending] = useActionState(action, initialState);
   const title = mode === "login" ? "Entrar" : mode === "signup" ? "Criar conta" : mode === "recover" ? "Recuperar senha" : "Nova senha";
   const description = mode === "login"
-    ? "Acesse a rotina compartilhada da sua casa."
+    ? "Acesse seus treinos, historico e perfil."
     : mode === "signup"
-      ? "Crie seu perfil e depois configure ou entre em uma casa."
+      ? "Crie sua conta e conclua o perfil de treino com seguranca."
       : mode === "recover"
         ? "Enviaremos um link seguro para o seu e-mail."
         : "Escolha uma senha nova para sua conta.";
@@ -33,8 +33,8 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: Mode; next?: str
     <main className="grid min-h-screen place-items-center bg-stone-100 px-4 py-8 dark:bg-neutral-950">
       <section className="w-full max-w-md rounded-lg border border-slate-200 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
         <Link href="/" className="mb-8 flex items-center gap-3">
-          <BrandLogo size={44} />
-          <span><strong className="block text-lg">DuoNest</strong><small className="text-slate-500 dark:text-neutral-400">Rotina doméstica compartilhada</small></span>
+          <img src="/nexofit-favicon.png" alt="" className="size-11 rounded-lg bg-neutral-950 object-contain p-1" />
+          <span><strong className="block text-lg">NexoFit</strong><small className="text-slate-500 dark:text-neutral-400">Musculacao clara e segura</small></span>
         </Link>
         <Icon className="mb-3 text-emerald-700 dark:text-emerald-400" size={24} />
         <h1 className="text-2xl font-semibold">{title}</h1>

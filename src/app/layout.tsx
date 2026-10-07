@@ -13,21 +13,21 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "DuoNest",
-  applicationName: "DuoNest",
-  description: "Gerenciador inteligente e gamificado de rotina domestica para casas compartilhadas.",
+  title: "NexoFit",
+  applicationName: "NexoFit",
+  description: "Aplicativo mobile de musculacao com planos explicaveis, registro de treino e seguranca de perfil.",
   manifest: "/manifest.json",
   icons: {
     icon: [
-      { url: "/favicon.ico", sizes: "48x48", type: "image/x-icon" },
-      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/nexofit-favicon.png", sizes: "1024x1024", type: "image/png" },
+      { url: "/nexofit-mark.svg", sizes: "any", type: "image/svg+xml" },
     ],
-    apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
+    apple: [{ url: "/nexofit-favicon.png", sizes: "1024x1024", type: "image/png" }],
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#071b4a",
+  themeColor: "#103b2d",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -38,7 +38,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">
-        <script dangerouslySetInnerHTML={{ __html: `try{const t=localStorage.getItem('duonest-theme');const d=t==='dark'||(!t&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',d)}catch{}` }} />
+        <script dangerouslySetInnerHTML={{ __html: `try{const t=localStorage.getItem('nexofit-theme')||localStorage.getItem('duonest-theme');const d=t==='dark'||(!t&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',d)}catch{}` }} />
         {children}
       </body>
     </html>

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 140" role="img" aria-labelledby="title desc">
+  <title id="title">NexoFit</title>
+  <desc id="desc">Logo NexoFit com simbolo de conexao e movimento.</desc>
+  <rect width="520" height="140" rx="24" fill="#103b2d"/>
+  <g transform="translate(34 28)">
+    <path d="M36 10h42c20 0 36 16 36 36s-16 36-36 36H36C16 82 0 66 0 46s16-36 36-36Z" fill="#b7f36b"/>
+    <path d="M40 28h34c10 0 18 8 18 18s-8 18-18 18H40c-10 0-18-8-18-18s8-18 18-18Z" fill="#103b2d"/>
+    <path d="M122 18l34 28-34 28" fill="none" stroke="#f7f2df" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <text x="224" y="88" fill="#f7f2df" font-family="Arial, Helvetica, sans-serif" font-size="58" font-weight="800">NexoFit</text>
+</svg>

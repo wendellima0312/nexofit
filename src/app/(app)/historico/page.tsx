@@ -1,5 +1,5 @@
-import { DuoNestApp } from "@/features/duonest/duonest-app";
+import { NexoFitApp } from "@/features/nexofit/nexofit-app";
 
-export default function HistoryPage() {
-  return <DuoNestApp view="historico" />;
+export default function HistoricoPage() {
+  return <NexoFitApp />;
 }

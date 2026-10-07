@@ -1,5 +1,5 @@
-import { DuoNestApp } from "@/features/duonest/duonest-app";
+import { NexoFitApp } from "@/features/nexofit/nexofit-app";
 
-export default function ProfilePage() {
-  return <DuoNestApp view="perfil" />;
+export default function PerfilPage() {
+  return <NexoFitApp />;
 }

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title id="title">NexoFit app icon</title>
+  <desc id="desc">Simbolo quadrado do aplicativo NexoFit.</desc>
+  <rect width="128" height="128" rx="26" fill="#103b2d"/>
+  <path d="M32 38h36c15 0 27 12 27 27S83 92 68 92H32C17 92 5 80 5 65s12-27 27-27Z" transform="translate(14 -1)" fill="#b7f36b"/>
+  <path d="M48 51h28c8 0 14 6 14 14s-6 14-14 14H48c-8 0-14-6-14-14s6-14 14-14Z" fill="#103b2d"/>
+  <path d="M87 44l25 21-25 21" fill="none" stroke="#f7f2df" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
