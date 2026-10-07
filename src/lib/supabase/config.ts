@@ -1,6 +1,13 @@
-const fallbackUrl = "https://nmhleyytflwrcdrybash.supabase.co";
-const fallbackPublishableKey = "sb_publishable_teAfXb3YrA8rgb2P-GIycw_cTscKtoz";
+const configuredSupabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+const configuredPublishableKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim();
 
-export const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || fallbackUrl;
-export const supabasePublishableKey =
-  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || fallbackPublishableKey;
+if (!configuredSupabaseUrl) {
+  throw new Error("Missing required environment variable: NEXT_PUBLIC_SUPABASE_URL");
+}
+
+if (!configuredPublishableKey) {
+  throw new Error("Missing required environment variable: NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY");
+}
+
+export const supabaseUrl = configuredSupabaseUrl;
+export const supabasePublishableKey = configuredPublishableKey;
