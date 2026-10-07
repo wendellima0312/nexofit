@@ -18,11 +18,8 @@ export const metadata: Metadata = {
   description: "Aplicativo mobile de musculacao com planos explicaveis, registro de treino e seguranca de perfil.",
   manifest: "/manifest.json",
   icons: {
-    icon: [
-      { url: "/nexofit-favicon.png", sizes: "1024x1024", type: "image/png" },
-      { url: "/nexofit-mark.svg", sizes: "any", type: "image/svg+xml" },
-    ],
-    apple: [{ url: "/nexofit-favicon.png", sizes: "1024x1024", type: "image/png" }],
+    icon: [{ url: "/icon.png", sizes: "512x512", type: "image/png" }],
+    apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
   },
 };
 

@@ -20,6 +20,7 @@ const { data: created, error: createError } = await supabase.auth.admin.createUs
   password,
   email_confirm: true,
   user_metadata: { display_name: name },
+  app_metadata: { role: "master" },
 });
 
 let user = created.user;
@@ -33,23 +34,28 @@ if (createError && createError.message.toLowerCase().includes("already")) {
     password,
     email_confirm: true,
     user_metadata: { display_name: name },
+    app_metadata: { ...user.app_metadata, role: "master" },
   });
   if (updateError) throw updateError;
+  user = { ...user, app_metadata: { ...user.app_metadata, role: "master" } };
 } else if (createError) {
   throw createError;
 }
 
 if (!user) throw new Error("Usuario MASTER nao foi criado ou encontrado.");
 
-await supabase.from("profiles").upsert({
+const { error: profileError } = await supabase.from("profiles").upsert({
   id: user.id,
   display_name: name,
   email,
   consent_version: "2026.10.07",
   health_consent_at: new Date().toISOString(),
 });
+if (profileError) throw new Error(`Auth criado, mas o perfil MASTER nao foi gravado: ${profileError.message}`);
 
-await supabase.from("user_roles").upsert({ user_id: user.id, role: "master" });
-await supabase.from("user_points").upsert({ user_id: user.id, points: 0, level: 1 });
+const { error: roleError } = await supabase.from("user_roles").upsert({ user_id: user.id, role: "master" });
+if (roleError) throw new Error(`Perfil criado, mas o papel MASTER nao foi gravado: ${roleError.message}`);
+const { error: pointsError } = await supabase.from("user_points").upsert({ user_id: user.id, points: 0, level: 1 });
+if (pointsError) throw new Error(`Papel MASTER criado, mas a pontuacao inicial nao foi gravada: ${pointsError.message}`);
 
-console.log(`MASTER pronto: ${name} <${email}>`);
+console.log(`MASTER pronto: ${name} <${email}> (${user.id})`);

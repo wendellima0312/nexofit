@@ -33,7 +33,7 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: Mode; next?: str
     <main className="grid min-h-screen place-items-center bg-stone-100 px-4 py-8 dark:bg-neutral-950">
       <section className="w-full max-w-md rounded-lg border border-slate-200 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
         <Link href="/" className="mb-8 flex items-center gap-3">
-          <img src="/nexofit-favicon.png" alt="" className="size-11 rounded-lg bg-neutral-950 object-contain p-1" />
+          <img src="/nexofit-favicon.png" alt="" className="size-11 rounded-lg object-contain" />
           <span><strong className="block text-lg">NexoFit</strong><small className="text-slate-500 dark:text-neutral-400">Musculacao clara e segura</small></span>
         </Link>
         <Icon className="mb-3 text-emerald-700 dark:text-emerald-400" size={24} />

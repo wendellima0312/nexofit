@@ -22,7 +22,7 @@ export function AppShell({ children, userName = "atleta" }: { children: React.Re
       <header className="sticky top-0 z-30 border-b border-slate-200 bg-[#f5f7f2]/90 px-4 py-3 backdrop-blur dark:border-neutral-800 dark:bg-neutral-950/90">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-3">
           <Link href="/dashboard" className="flex items-center gap-3">
-            <img src="/nexofit-favicon.png" alt="" className="size-10 rounded-lg bg-neutral-950 object-contain p-1" />
+            <img src="/nexofit-favicon.png" alt="" className="size-10 rounded-lg object-contain" />
             <span>
               <strong className="block leading-tight">NexoFit</strong>
               <small className="block text-xs text-slate-500 dark:text-neutral-400">Olá, {userName}</small>
