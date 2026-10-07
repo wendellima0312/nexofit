@@ -1,6 +1,17 @@
 create extension if not exists pgcrypto;
 create extension if not exists unaccent;
 
+create schema if not exists private;
+
+create table if not exists public.profiles (
+  id uuid primary key references auth.users(id) on delete cascade,
+  display_name text not null,
+  email text,
+  avatar_url text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 alter table public.profiles
   add column if not exists birth_date date,
   add column if not exists gender text,
@@ -12,6 +23,45 @@ alter table public.profiles
   add column if not exists health_consent_at timestamptz,
   add column if not exists safety_flags jsonb not null default '{}'::jsonb,
   add column if not exists nexofit_preferences jsonb not null default '{}'::jsonb;
+
+alter table public.profiles enable row level security;
+
+drop policy if exists profiles_self_select on public.profiles;
+create policy profiles_self_select on public.profiles for select to authenticated
+using ((select auth.uid()) = id);
+drop policy if exists profiles_self_insert on public.profiles;
+create policy profiles_self_insert on public.profiles for insert to authenticated
+with check ((select auth.uid()) = id);
+drop policy if exists profiles_self_update on public.profiles;
+create policy profiles_self_update on public.profiles for update to authenticated
+using ((select auth.uid()) = id)
+with check ((select auth.uid()) = id);
+
+create or replace function private.handle_nexofit_new_user()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  insert into public.profiles (id, display_name, email)
+  values (
+    new.id,
+    coalesce(nullif(trim(new.raw_user_meta_data ->> 'display_name'), ''), split_part(new.email, '@', 1), 'Atleta'),
+    new.email
+  )
+  on conflict (id) do update
+  set email = excluded.email,
+      updated_at = now();
+
+  return new;
+end;
+$$;
+
+drop trigger if exists auth_user_create_nexofit_profile on auth.users;
+create trigger auth_user_create_nexofit_profile
+after insert on auth.users
+for each row execute function private.handle_nexofit_new_user();
 
 create table if not exists public.exercises (
   id text primary key,
